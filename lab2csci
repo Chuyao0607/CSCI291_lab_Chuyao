@@ -45,7 +45,9 @@
 #define chocolate_threshold 35
 
 void order_coffee
-void admin_password
+void admin
+void ingredient_totalamount()
+void change_price()
 
 int main (void)
 {
@@ -172,7 +174,26 @@ void admin_password(){
     }
     else{
         while(1){
-            
+             printf("1.the quantity of each ingredient in the machine and the total sale amount\n");
+            printf("2.Replenish ingredients in the machine\n\n");
+            printf("3.Change coffee price\n\n\n");
+            printf("4.exsit\n\n\n\n");
+            int option;
+            printf("enter your option: ");
+            scanf("%d",&option);
+            switch(option){
+                case 1:
+                void ingredient_totalamount();
+                break;
+                case 2:
+                replenshi_ingredient();
+                break;
+                case 3:
+                void change_price();
+                break;
+                default:
+                puts("exsit");
+                break
         }
     }
 
