@@ -33,10 +33,12 @@
 #define Mocha_price 5.5
 
 /*total materials*/
-#define bean 300
-#define water 600
-#define milk 1000
-#define chocolate 550
+float bean 300
+float water 600
+float milk 1000
+float chocolate 550
+
+float total_amount = 0.0;
 
 /*low threshold*/
 #define bean_lowthreshold 9
@@ -44,8 +46,9 @@
 #define milk_threshold 75
 #define chocolate_threshold 35
 
-void order_coffee
-void admin
+void order_coffee()
+void admin()
+void total_amount()
 void ingredient_totalamount()
 void change_price()
 
@@ -100,11 +103,11 @@ void order_coffee(){
     printf("please confirm your option. your ordered option%d\n",choice);
 
         if (choice==1){ 
-            bean_new=bean-Espresso_bean;
-            water_new=water-Espresso_water;
-            milk_new=milk;
-            chocolate_new=chocolate-Espresso_chocolate;
-            if(bean_new<=bean_lowthreshold || water_new<=water_threshold || milk<=milk_threshold || chocolate_new<=chocolate_threshold)
+            bean=bean-Espresso_bean;
+            water=water-Espresso_water;
+            milk=milk;
+            chocolate=chocolate-Espresso_chocolate;
+            if(bean<=bean_lowthreshold || water<=water_threshold || milk<=milk_threshold || chocolate<=chocolate_threshold)
             printf("these materials are not enough.\n");
             puts("please contact with our stuffs");
             float payment;
@@ -116,15 +119,16 @@ void order_coffee(){
                 printf("please comtinue inserting %.2fAED\n",payment_rest);
             }
             if(payment==3.5){
+                total_amount += Espresso_price;
                 puts("finish");
             }         
         }
         if (choice==2){
-            bean_new=bean-Cappuccino_bean;
-            water_new=water-Cappuccino_water;
-            milk_new=milk-Cappuccino_milk;
-            chocolate_new=chocolate-Cappuccino_chocolate;
-            if(bean_new<=bean_lowthreshold || water_new<=water_threshold || milk<=milk_threshold || chocolate_new<=chocolate_threshold)
+            bean=bean-Cappuccino_bean;
+            water=water-Cappuccino_water;
+            milk=milk-Cappuccino_milk;
+            chocolate=chocolate-Cappuccino_chocolate;
+            if(bean<=bean_lowthreshold || water<=water_threshold || milk<=milk_threshold || chocolate<=chocolate_threshold)
             printf("these materials are not enough.\n");
             puts("please contact with our stuffs");
             float payment;
@@ -136,15 +140,16 @@ void order_coffee(){
                 printf("please comtinue inserting %.2fAED\n",payment_rest);
             }
             if(payment==4.5){
+                total_amount +=Capppuccino_price;
                 puts("finish");
 
                     }
         if(choice==3){
-            bean_new=bean-Mocha_bean;
-            water_new=water-Mocha_water;
-            milk_new=milk-Mocha_milk;
-            chocolate_new=chocolate-Mocha_chocolate;
-            if(bean_new<=bean_lowthreshold || water_new<=water_threshold || milk<=milk_threshold || chocolate_new<=chocolate_threshold)
+            bean=bean-Mocha_bean;
+            water=water-Mocha_water;
+            milk=milk-Mocha_milk;
+            chocolate=chocolate-Mocha_chocolate;
+            if(bean<=bean_lowthreshold || water<=water_threshold || milk<=milk_threshold || chocolate<=chocolate_threshold)
             printf("these materials are not enough.\n");
             puts("please contact with our stuffs");
             float payment;
@@ -156,6 +161,7 @@ void order_coffee(){
                 printf("please comtinue inserting %.2fAED\n",payment_rest);
             }
             if(payment==5.5){
+                total_amount += Mocha_price;
                 puts("finish");
                     }
         }
@@ -163,7 +169,7 @@ void order_coffee(){
     }
     return 0;
 }
-void admin_password(){
+void admin(){
     int password;
 
     printf("please input adimin password.\n");
@@ -174,7 +180,7 @@ void admin_password(){
     }
     else{
         while(1){
-             printf("1.the quantity of each ingredient in the machine and the total sale amount\n");
+            printf("1.the quantity of each ingredient in the machine and the total sale amount\n");
             printf("2.Replenish ingredients in the machine\n\n");
             printf("3.Change coffee price\n\n\n");
             printf("4.exsit\n\n\n\n");
@@ -194,7 +200,59 @@ void admin_password(){
                 default:
                 puts("exsit");
                 break
+            }
+
         }
     }
+return 0;
+}
+void ingredient_totalamount(){
+    bean=randi();
+    water=randi();
+    milk=randi();
+    chocolate=randi();
 
+    ingredient_totalamount();
+
+
+return 0;
+}
+void display_quantities_and_sales() {
+    printf("ingredient quantities:\n");
+    printf("bean: %.2f \n", bean);
+    printf("water: %.2f \n", water);
+    printf("milk: %.2f \n", milk);
+    printf("chocolate: %.2f \n", chocolate);
+    printf("total amount: %.2f\", total_amount");
+return 0;
+}
+void change_price(){
+    int new_price;
+    int coffee_change;
+    printf("which coffee's price you want to change?Espresso(1) Cappuccino(2) Mocha(3)\n");
+    printf("enter coffee number: ");
+    scanf("%d",&coffee_change);
+
+    switch(coffee_change){
+        case 1:
+        printf("enter new price: ");
+        scanf("%d",&new_price);
+        Espresso_price=new_price;
+        break;
+        case 2:
+        printf("enter new price: ");
+        scanf("%d",&new_price);
+        Capppuccino_price=new_price;
+        break;
+        case 3:
+        printf("enter new price: ");
+        scanf("%d",&new_price);
+        Mocha_price=new_price;
+        break;
+        default:
+        puts("not valid");
+        break;
+
+    }
+    return 0;
 }
