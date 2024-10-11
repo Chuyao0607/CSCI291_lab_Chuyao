@@ -126,19 +126,23 @@ void order_coffee() {
 
         /*how to pay*/
         float payment = 0;
-        printf("Enter your coins (1 AED or 0.5 AED): ");
-        scanf("%f", &payment);
-        
-        if (payment < price) {
-            printf("Insufficient payment. Please continue inserting %.2f AED\n", price - payment);
-            continue;  /*return back this loop*/
-        } else {
-            total_amount += price; /*update the total_amount*/
-            printf("Payment accepted. Your order is ready!\n");
+        while (payment < price) {
+            float coin;
+            printf("Enter your coins (1 AED or 0.5 AED): ");
+            scanf("%f", &coin);  
+
+            payment += coin;
+            if (payment < price) {
+                printf("You still need to insert %.2f AED\n", price - payment);
+            }
         }
+
+        printf("Payment accepted. Your order is ready!\n");
+        break; 
     }
-    return(0);
-}
+    }
+
+
 
 void admin() {
     int password;
@@ -179,45 +183,4 @@ void admin() {
                 break;
         }
     }
-    return(0);
-}
-
-void display_ingredient_totals() {
-    printf("Ingredient quantities:\n");
-    printf("Beans: %.2f grams\n", beans);
-    printf("Water: %.2f mL\n", water);
-    printf("Milk: %.2f mL\n", milk);
-    printf("Chocolate: %.2f mL\n", chocolate);
-    printf("Total amount from sales: %.2f AED\n", total_amount);
-    return(0);
-}
-
-void change_price() {
-    int coffee_choice;
-    float new_price;
-    printf("Which coffee's price do you want to change? Espresso (1) Cappuccino (2) Mocha (3)\n");
-    printf("Enter coffee number: ");
-    scanf("%d", &coffee_choice);
-    
-    switch (coffee_choice) {
-        case 1:
-            printf("Enter new price for Espresso: ");
-            scanf("%f", &new_price);
-            espresso_price = new_price;/*update a new price.*/
-            break;
-        case 2:
-            printf("Enter new price for Cappuccino: ");
-            scanf("%f", &new_price);
-            cappuccino_price = new_price;/*update a new price.*/
-            break;
-        case 3:
-            printf("Enter new price for Mocha: ");
-            scanf("%f", &new_price);
-            mocha_price = new_price;/*update a new price.*/
-            break;
-        default:
-            puts("Not a valid choice.");
-            break;
-    }
-    return(0);
 }
