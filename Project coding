@@ -7,17 +7,21 @@
 #define TIME_STEP 64  // Time step for simulation in ms
 #define MAX_SPEED 6.28
 
-int main(int argc, char **argv) {
-  // Initialize the Webots API
-  wb_robot_init();
-
+void initialize_devices()
+void process_sensors_and_control()
+  
+void initialize_devices() {
   // Define and enable the light sensor (lts)
   WbDeviceTag light_sensor = wb_robot_get_device("lts");  // Replace "lts" with the actual name of the light sensor
   wb_light_sensor_enable(light_sensor, TIME_STEP);
   WbDeviceTag distance_sensor =wb_robot_get_device("Dts");//repalce "Dts" mwith the actual name of the distance sensor
-
-  // Main loop
-  while (wb_robot_step(TIME_STEP) != -1) {
+  wb_motor_set_position(left_motor,INFINITY);//turn left
+  wb_motor_set_position(right_motor,INFINITY);//turn right
+  wb_motor_set_velocity(left_motor,MAX_SPEED);//1 rotation per second. it may be positive or negative
+  wb_motor_set_velocity(right_motor,MAX_SPEED);//combine velosity and rotation position to control turn right or left
+  }
+void process_sensors_and_control(){
+  
     // Read the light sensor value
     double light_value = wb_light_sensor_get_value(light_sensor);
     double distance_value=wb_distance_sensor_get_value(distance_sensor);
@@ -25,8 +29,52 @@ int main(int argc, char **argv) {
     // Display the value
     printf("Light Sensor Value: %f\n", light_value);
     printf("Distance Sensor Value: %f\n", distance_value);
+    
+    double left_motor_speed = 1.0;  // Default speed
+    double right_motor_speed = 1.0; // Default speed
+    
+    double ps_value[8];
+    for (i=0;i<8;i++)
+    ps_value[i]=wb_distance_sensor_get_value(ps[i]);
+    
+    //detect obstacles
+    bool right_obstacle=
+        ps_values[0]>80.0 ||
+        ps_values[1]>80.0 ||
+        ps_values[2]>80.0 ;
+    bool left_obstacles
+        ps_values[5]>80.0 ||
+        ps_values[6]>80.0 ||
+        ps_values[7]>80.0;
+    //initialize motor speed at 30% of MAX_SPEED.
+    double left_speed=0.3 * MAX_SPEED;
+    double right_speed=0.3 * MAX_SPEED;
+    
+    //modify speeds according to obstacles
+    if(left_obstacle){
+    //turn right
+    left_speed = 0.3 *MAX_SPEED;
+    right_speed= 0.1*MAX_SPEED;
+    }
+    else if (right_obstacle){
+    //turn left
+    left_speed = 0.1 *MAX_SPEED;
+    right_speed= 0.3* MAX_SPEED;
+    }
+    
+    //write actuators inputs
+    wb_motor_set_velocity(left_motor,left_speed);
+    wb_motor_set_velocity(right_motor,right_speed);
+    }
+        
+}
+int main(int argc, char **argv) {
+  // Initialize the Webots API
+  wb_robot_init();
+  initialize_devices();  // Initialize sensors and actuators
+  while (wb_robot_step(TIME_STEP) != -1) {
+   process_sensors_and_control();  // Process sensor readings and control motors
   }
-
   // Cleanup the Webots API
   wb_robot_cleanup();
 
