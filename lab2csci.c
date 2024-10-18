@@ -138,6 +138,8 @@ void order_coffee() {
         }
 
         printf("Payment accepted. Your order is ready!\n");
+        total_amount += price;
+        printf("Your payment of %.2f AED has been added to total sales.\n", price);
         break; 
     }
     }
@@ -182,5 +184,44 @@ void admin() {
                 puts("Invalid option. Please try again.");
                 break;
         }
+    }
+}
+
+void display_ingredient_totals() {
+    printf("Ingredient quantities:\n");
+    printf("Beans: %.2f grams\n", beans);
+    printf("Water: %.2f mL\n", water);
+    printf("Milk: %.2f mL\n", milk);
+    printf("Chocolate: %.2f mL\n", chocolate);
+    printf("Total amount from sales: %.2f AED\n", total_amount);
+    
+}
+
+void change_price() {
+    int coffee_choice;
+    float new_price;
+    printf("Which coffee's price do you want to change? Espresso (1) Cappuccino (2) Mocha (3)\n");
+    printf("Enter coffee number: ");
+    scanf("%d", &coffee_choice);
+    
+    switch (coffee_choice) {
+        case 1:
+            printf("Enter new price for Espresso: ");
+            scanf("%f", &new_price);
+            espresso_price = new_price;/*update a new price.*/
+            break;
+        case 2:
+            printf("Enter new price for Cappuccino: ");
+            scanf("%f", &new_price);
+            cappuccino_price = new_price;/*update a new price.*/
+            break;
+        case 3:
+            printf("Enter new price for Mocha: ");
+            scanf("%f", &new_price);
+            mocha_price = new_price;/*update a new price.*/
+            break;
+        default:
+            puts("Not a valid choice.");
+            break;
     }
 }
