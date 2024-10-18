@@ -46,13 +46,13 @@ float total_amount = 0.0;
 #define WATER_LOW_THRESHOLD 50
 #define MILK_LOW_THRESHOLD 70
 #define CHOCOLATE_LOW_THRESHOLD 25
-
+/*define what each part of the program does*/
 void order_coffee();
 void admin();
 void display_total_amount();
 void display_ingredient_totals();
 void change_price();
-
+/*he central control loop for the program, allowing users to interact with the coffee ordering system or administrative mode. */
 int main(void) {
     printf("Order coffee (1) | Admin mode (2) | End the application execution (3)\n");
     int option;
@@ -79,8 +79,8 @@ void order_coffee() {
         int choice;
         printf("Espresso 3.5 AED (1); Cappuccino 4.5 AED (2); Mocha 5.5 AED (3)\n");
         printf("Enter your choice: ");
-        scanf("%d", &choice);
-        
+        scanf("%d", &choice);/*store your choice*/
+        /*define original numbers for after updating */
         float price = 0;
         float beans_needed = 0, water_needed = 0, milk_needed = 0, chocolate_needed = 0;
         
@@ -119,18 +119,18 @@ void order_coffee() {
         }
 
         /*update ingredients*/
-        beans -= beans_needed;
-        water -= water_needed;
-        milk -= milk_needed;
-        chocolate -= chocolate_needed;
+        beans -= beans_needed;/*when you finish order a cup of coffee, the beans will be updated.*/
+        water -= water_needed;/*when you finish order a cup of coffee, the water will be updated.*/
+        milk -= milk_needed;/*when you finish order a cup of coffee, the milk will be updated.*/
+        chocolate -= chocolate_needed;/*when you finish order a cup of coffee, the chocolate will be updated.*/
 
         /*how to pay*/
-        float payment = 0;
+        float payment = 0;/*define an original number for after updating.*/
         while (payment < price) {
             float coin;
             printf("Enter your coins (1 AED or 0.5 AED): ");
             scanf("%f", &coin);  
-
+        /*let user insert a coint again and agian untill payment=coin*/
             payment += coin;
             if (payment < price) {
                 printf("You still need to insert %.2f AED\n", price - payment);
@@ -138,7 +138,11 @@ void order_coffee() {
         }
 
         printf("Payment accepted. Your order is ready!\n");
-        total_amount += price;
+        beans -= beans_needed;/*when you finish order a cup of coffee, the beans will be updated.*/
+        water -= water_needed;/*when you finish order a cup of coffee, the water will be updated.*/
+        milk -= milk_needed;/*when you finish order a cup of coffee, the milk will be updated.*/
+        chocolate -= chocolate_needed;/*when you finish order a cup of coffee, the chocolate will be updated.*/
+        total_amount += price;/*update the total_amount for the next loop.*/
         printf("Your payment of %.2f AED has been added to total sales.\n", price);
         break; 
     }
@@ -165,13 +169,13 @@ void admin() {
         int option;/*choose one of functions*/
         printf("Enter your option: ");
         scanf("%d", &option);
-        
-        switch (option) {
+        /*allows the admin to perform various tasks based on their input.*/
+        switch (option) {/*corresponds to a different action*/
             case 1:
                 display_ingredient_totals();
                 break;
             case 2:
-                /*if you didn't to order coffee at first.this line will not show.*/
+                /*if ingredients are enough it will be showed.*/
                 puts("Replenishing ingredients is not implemented yet.");
                 break;
             case 3:
@@ -186,7 +190,7 @@ void admin() {
         }
     }
 }
-
+/**/
 void display_ingredient_totals() {
     printf("Ingredient quantities:\n");
     printf("Beans: %.2f grams\n", beans);
