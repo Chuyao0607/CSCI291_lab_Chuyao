@@ -7,35 +7,30 @@ void remove_element(int arr[], int *length, int pos);  // Remove element from th
 void insert_element(int arr[], int *length, int pos, int value);  // Insert element at the given position
 
 int main() {
-    int arr[10] = {10, 20, 30, 40, 50};  // Initialize array with 5 values, and extra space
+    int arr[5] = {10, 20, 30, 40, 50};  // Initialize array with 5 values, and extra space
     int length = 5;  // Length of the array is initially 5
    
-    // show original array
-    printf("Original array: ");  // Print the original array
-    for (int i = 0; i < length; i++) {  // Loop to print each element in the array
-        printf("%d ", arr[i]);
-    }
-    printf("\n");
+    // Modify array to {10, 10, 20, 40, 50}
+    remove_element(arr, &length, 2);  // Remove element at index 2 (value 30)
+    insert_element(arr, &length, 1, 10);  // Insert element 10 at index 1
 
-    // delate elements
-    remove_element(arr, &length, 2);  // delate element of index2 in array
-    remove_element(arr, &length, 1);  // delate element of index1 in array
-
-    //Display the deleted array
-    printf("Array after deletion: ");  // Print array after deletion
+    // Display the modified array
+    printf("Array after first modification: ");
     for (int i = 0; i < length; i++) {  // Loop to print each element in the modified array
         printf("%d ", arr[i]);
     }
     printf("\n");
 
-    // insert new elements
-    insert_element(arr, &length, 0, 20);  // insert element 20 in index 0
-    insert_element(arr, &length, 1, 30);  // insert element 30 in index 1
-    insert_element(arr, &length, 2, 80);  // insert element 80 in index 2
+    // Re-initialize the array back to {10, 20, 30, 40, 50}
+    arr[0] = 10; arr[1] = 20; arr[2] = 30; arr[3] = 40; arr[4] = 50;
+    length = 5;
 
-     
-// Display the inserted array
-    printf("Array after insertion: ");  // Print array after insertion
+    // Modify array to {20, 30, 80, 40, 50}
+    remove_element(arr, &length, 0);  // Remove element at index 0 (value 10)
+    insert_element(arr, &length, 2, 80);  // Insert element 80 at index 2
+
+    // Display the modified array
+    printf("Array after second modification: ");
     for (int i = 0; i < length; i++) {  // Loop to print each element in the modified array
         printf("%d ", arr[i]);
     }
@@ -61,15 +56,9 @@ void remove_element(int arr[], int *length, int pos) {
 
     // Shift elements left to fill the gap
     for (int i = pos; i < *length - 1; i++) {  // Loop through elements from position
-        arr[i] = arr[i + 1];  // Shift each element to the left
+        arr[i] = arr[i + 1];  // Shift each element to the left to fill the deleted element
     }
-
     (*length)--;  // Decrease the array length by 1
-
-    printf("Array after removal at index %d: ", pos);  // Print the array after removal
-    for (int i = 0; i < *length; i++) {  // Loop to print the modified array
-        printf("%d ", arr[i]);
-    }
     printf("\n");
 }
 
@@ -87,11 +76,6 @@ void insert_element(int arr[], int *length, int pos, int value) {
 
     arr[pos] = value;  // Insert the new value at the specified position
     (*length)++;  // Increase the array length by 1
-
-    printf("Array after insertion at index %d: ", pos);  // Print the array after insertion
-    for (int i = 0; i < *length; i++) {  // Loop to print the modified array
-        printf("%d ", arr[i]);
-    }
     printf("\n");
 }
 
