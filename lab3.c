@@ -1,14 +1,33 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include <string.h>
-
-#define SIZE 24
-#define nRows 8
-#define nCols 3
 
 bool isValid(const int arr[], int length, int pos);
 void remove_element(int arr[], int length, int pos); 
-void insert_element(int arr[], int length, int pos, int value);
+
+
+int main() {
+    int arr[5] = {10, 20, 30, 40, 50};
+    int length = 5;
+   
+    // Display the original array
+    printf("Original array: ");
+    for (int i = 0; i < length; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+
+    // "Remove" elements at index 1 and 2 by replacing them with preceding values
+    remove_element(arr, length, 2);  // Replaces element at index 1 with index 0
+    remove_element(arr, length, 1);  // Replaces element at index 2 with index 1
+    // Display the final array
+    printf("Final array: ");
+    for (int i = 0; i < length; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+
+    return 0;
+}
 
 bool isValid(const int arr[], int length, int pos) {
     if(pos >= 0 && pos < length){
@@ -17,44 +36,21 @@ bool isValid(const int arr[], int length, int pos) {
     return false;
 
 }
-
-void remove_element(int arr[], int length, int pos) { 
-    if (!isValid(arr, length, pos)) {
-        printf("Error: Invalid position\n");
-        return;
-    }
-    for (int i = pos; i < length - 1; i++) {
-        arr[i] = arr[i + 1];
-    }
-    
-}
-void insert_element(int arr[], int length, int pos, int value){
+// Function to "remove" element by setting arr[pos] to arr[pos - 1]
+void remove_element(int arr[], int length, int pos) {
    if (!isValid(arr, length, pos)) {
         printf("Error: Invalid position\n");
         return;
-    } 
-    for(int i=pos; i< length +1;i++){
-        arr[i]=arr[i + 1];
     }
 
-}
-int main() {
-    int arr[SIZE] = {0}; 
-    int length = sizeof(arr) / sizeof(arr[0]);
-    int pos; 
-    
-    printf("Enter a number for pos: ");
-    scanf("%d", &pos);
+    // Replace arr[pos] with arr[pos - 1]
+    arr[pos] = arr[pos - 1];
 
-    if (!isValid(arr, length, pos)) {
-        printf("Error: Invalid position\n");
-        return 1;
+    // Display the array after replacement
+    printf("Array after replacement at index %d: ", pos);
+    for (int i = 0; i < length; i++) {
+        printf("%d ", arr[i]);
     }
-    void remove_element(int arr[], int length, int pos); 
-    void insert_element(int arr[], int length, int pos, int value);
-    for(int i=0;i<length;i++){
-    int arr[i];
     printf("\n");
 }
-    return 0;
-}
+
