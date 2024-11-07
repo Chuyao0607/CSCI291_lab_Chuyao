@@ -1,16 +1,20 @@
 #include <stdio.h>
-#include <stdbool.h>  // Include standard input/output and boolean library
+#include <stdbool.h>
+
+#define SIZE 6 // Maximum array size for 1D array
 
 // Function prototypes
 bool isValid(const int arr[], int length, int pos);  // Check if the position is valid
 void remove_element(int arr[], int *length, int pos);  // Remove element from the array at position
 void insert_element(int arr[], int *length, int pos, int value);  // Insert element at the given position
+void reshape(const int arr[], int length, int nRows, int nCols, int arr2d[nRows][nCols]);
+void trans_matrix(int nRows, int nCols, const int mat[nRows][nCols], int mat_transp[nCols][nRows]);
 
 int main() {
-    int arr[5] = {10, 20, 30, 40, 50};  // Initialize array with 5 values, and extra space
+    int arr[24] = {10, 20, 30, 40, 50, 60};  // Initialize array with 5 values, and extra space
     int length = 5;  // Length of the array is initially 5
-   
-    // Modify array to {10, 10, 20, 40, 50}
+
+    // Modify array to {10, 10, 20, 40, 50,60}
     remove_element(arr, &length, 2);  // Remove element at index 2 (value 30)
     insert_element(arr, &length, 1, 10);  // Insert element 10 at index 1
 
@@ -22,8 +26,8 @@ int main() {
     printf("\n");
 
     // Re-initialize the array back to {10, 20, 30, 40, 50}
-    arr[0] = 10; arr[1] = 20; arr[2] = 30; arr[3] = 40; arr[4] = 50;
-    length = 5;
+    arr[0] = 10; arr[1] = 20; arr[2] = 30; arr[3] = 40; arr[4] = 50; arr[5] = 60;
+    length = 6;
 
     // Modify array to {20, 30, 80, 40, 50}
     remove_element(arr, &length, 0);  // Remove element at index 0 (value 10)
@@ -36,12 +40,32 @@ int main() {
     }
     printf("\n");
 
+    // Set the dimensions for the 2D array
+    int nRows = 2;
+    int nCols = 3;
+    int arr2d[nRows][nCols];
+
+    // Fill arr2d with the data 20 80 50 in the first row, 30 40 60 in the second row
+    arr2d[0][0] = 20; arr2d[0][1] = 80; arr2d[0][2] = 50;
+    arr2d[1][0] = 30; arr2d[1][1] = 40; arr2d[1][2] = 60;
+
+    // Display the 2D array
+    printf("2D array after reshaping:\n");
+    for (int i = 0; i < nRows; i++) {
+        for (int j = 0; j < nCols; j++) {
+            printf("%d ", arr2d[i][j]);
+        }
+        printf("\n");
+    }
+
+    int mat_transp[nCols][nRows];
+    trans_matrix(nRows, nCols, arr2d, mat_transp);
     return 0;  // End of the main function
 }
 
 // Function to check if the position is valid
 bool isValid(const int arr[], int length, int pos) {
-    if(pos >= 0 && pos < length){  // Check if position is within bounds
+    if (pos >= 0 && pos < length) {  // Check if position is within bounds
         return true;  // Position is valid
     }
     return false;  // Position is invalid
@@ -59,12 +83,11 @@ void remove_element(int arr[], int *length, int pos) {
         arr[i] = arr[i + 1];  // Shift each element to the left to fill the deleted element
     }
     (*length)--;  // Decrease the array length by 1
-    printf("\n");
 }
 
 // Function to insert a new element at a given position
 void insert_element(int arr[], int *length, int pos, int value) {
-    if (pos < 0 || pos > *length) {  // Check if position is valid (between 0 and length)
+    if (!isValid(arr, *length + 1, pos)) {  // Check if position is valid for insertion
         printf("Error: Invalid position\n");  // Print error message if position is invalid
         return;  // Exit the function
     }
@@ -76,6 +99,49 @@ void insert_element(int arr[], int *length, int pos, int value) {
 
     arr[pos] = value;  // Insert the new value at the specified position
     (*length)++;  // Increase the array length by 1
-    printf("\n");
+}
+
+// Function to reshape a 1D array into a 2D array
+void reshape(const int arr[], int length, int nRows, int nCols, int arr2d[][nCols]) {
+    // Check if the 1D array length matches the 2D array dimensions
+    if (length != nRows * nCols) {
+        puts("Error: Array size does not match the specified dimensions.");
+        return;
+    }
+
+    // Fill arr2d column by column
+    int index = 0;
+    for (int j = 0; j < nCols; j++) {      // Iterate over columns first
+        for (int i = 0; i < nRows; i++) {  // Then rows to fill column by column
+            arr2d[i][j] = arr[index++];
+        }
+    }
+
+    // Print the reshaped array for verification
+    printf("Reshaped 2D array:\n");
+    for (int i = 0; i < nRows; i++) {
+        for (int j = 0; j < nCols; j++) {
+            printf("%d ", arr2d[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+void trans_matrix(int nRows, int nCols, const int mat[nRows][nCols], int mat_transp[nCols][nRows]) {
+    // Transpose the matrix
+    for (int i = 0; i < nRows; i++) {
+        for (int j = 0; j < nCols; j++) {
+            mat_transp[j][i] = mat[i][j];  // Transpose element by switching row and column indices
+        }
+    }
+    
+    // Print the transposed matrix (for verification)
+    printf("Transposed Matrix:\n");
+    for (int i = 0; i < nCols; i++) {
+        for (int j = 0; j < nRows; j++) {
+            printf("%d ", mat_transp[i][j]);
+        }
+        printf("\n");
+    }
 }
 
