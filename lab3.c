@@ -11,8 +11,8 @@ void reshape(const int arr[], int length, int nRows, int nCols, int arr2d[nRows]
 void trans_matrix(int nRows, int nCols, const int mat[nRows][nCols], int mat_transp[nCols][nRows]);
 bool found_duplicate(int arr[], int length);
 int main() {
-    int arr[24] = {10, 20, 30, 40, 50, 60};  // Initialize array with 5 values, and extra space
-    int length = 5;  // Length of the array is initially 5
+    int arr[SIZE] = {10, 20, 30, 40, 50, 60};  // Initialize array with 5 values, and extra space
+    int length = SIZE;  // Length of the array is initially 5
 
     // Modify array to {10, 10, 20, 40, 50,60}
     remove_element(arr, &length, 2);  // Remove element at index 2 (value 30)
