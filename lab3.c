@@ -9,7 +9,7 @@ void remove_element(int arr[], int *length, int pos);  // Remove element from th
 void insert_element(int arr[], int *length, int pos, int value);  // Insert element at the given position
 void reshape(const int arr[], int length, int nRows, int nCols, int arr2d[nRows][nCols]);
 void trans_matrix(int nRows, int nCols, const int mat[nRows][nCols], int mat_transp[nCols][nRows]);
-
+bool found_duplicate(int arr[], int length);
 int main() {
     int arr[24] = {10, 20, 30, 40, 50, 60};  // Initialize array with 5 values, and extra space
     int length = 5;  // Length of the array is initially 5
@@ -60,6 +60,12 @@ int main() {
 
     int mat_transp[nCols][nRows];
     trans_matrix(nRows, nCols, arr2d, mat_transp);
+
+    if (found_duplicate(arr, length)) {
+        printf("There is at least one duplicate value in the array.\n");
+    } else {
+        printf("No duplicates found in the array.\n");
+    }
     return 0;  // End of the main function
 }
 
@@ -143,5 +149,16 @@ void trans_matrix(int nRows, int nCols, const int mat[nRows][nCols], int mat_tra
         }
         printf("\n");
     }
+}
+bool found_duplicate(int arr[], int length) {
+    // Iterate through each element in the array
+    for (int i = 0; i < length - 1; i++) {
+        for (int j = i + 1; j < length; j++) {
+            if (arr[i] == arr[j]) {  // If a duplicate is found
+                return true;  // Return true if duplicate is found
+            }
+        }
+    }
+    return false;  // Return false if no duplicates were found
 }
 
