@@ -163,3 +163,38 @@ bool found_duplicate(int arr[], int length) {
 }
 
 question 2
+#include <stdio.h>
+#define SIZE 8
+
+int initial_balance = 100;
+
+void withdraw(int tob[], int transaction[], int size);
+
+int main() {
+    int transaction[SIZE] = {200, -150, -500, -400, -50, -200, 300, 0};  // Correct initialization
+    int tob[SIZE] = {0};  // Array to store invalid transactions, initialized to 0
+    withdraw(tob, transaction, SIZE);
+    return 0;
+}
+
+void withdraw(int tob[], int transaction[], int size) {
+    int j = 0;  // Index for storing invalid transactions
+
+    for (int i = 0; i < size; i++) {  // Iterate over each transaction
+        if ((initial_balance + transaction[i]) < 0) {
+            printf("Transaction of %d is invalid!\n", transaction[i]);
+            tob[j++] = transaction[i];  // Store the invalid transaction
+        } else {
+            initial_balance += transaction[i];
+            printf("Transaction of %d processed. New balance: %d\n", transaction[i], initial_balance);
+        }
+    }
+    printf("tobeprocessed is: \n");
+    for(int i;i<j;i++){
+        printf("%d",tob[i]);
+    }
+    printf("\n");
+    // Display the list of invalid transactions
+   
+}
+
