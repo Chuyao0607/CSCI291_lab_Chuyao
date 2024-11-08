@@ -162,3 +162,4 @@ bool found_duplicate(int arr[], int length) {
     return false;  // Return false if no duplicates were found
 }
 
+question 2
