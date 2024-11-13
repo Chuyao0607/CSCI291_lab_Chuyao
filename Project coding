@@ -1,4 +1,4 @@
-#include <webots/robot.h>
+<webots/robot.h>
 #include <webots/light_sensor.h>
 #include <webots/distance_sensor.h>
 #include <webots/motor.h>
@@ -77,23 +77,23 @@ void process_sensors_and_control() {
 
   // Determine robot movement based on proximity sensor data
   if (front_obstacle==0 && left_obstacle==0) {
-    left_speed = MAX_SPEED;
-    right_speed = 0.1 * MAX_SPEED; // Move forward
+    left_speed = 0.1*MAX_SPEED;
+    right_speed =MAX_SPEED; // Move forward
   } 
    else if (front_obstacle==0 && left_obstacle==1) {
     // If there's an obstacle in front, back up and turn
     left_speed = MAX_SPEED;
     right_speed = MAX_SPEED;
    else if(front_obstacle==1 && left_obstacle==0){
-    left_speed = MAX_SPEED;
-    right_speed = 0.1 * MAX_SPEED; 
+    left_speed = 0.1*MAX_SPEED;
+    right_speed = MAX_SPEED; 
     }
     else if(front_obstacle==1 && left_obstacle==1){
-     left_speed = 0.1* MAX_SPEED;
-     right_speed = MAX_SPEED; 
+     left_speed = MAX_SPEED;
+     right_speed = 0.1*MAX_SPEED; 
     if (corner_obstacle==1){
-     left_speed = 0.1* MAX_SPEED;
-     right_speed = MAX_SPEED; 
+     left_speed = MAX_SPEED;
+     right_speed = 0.1*MAX_SPEED; 
     }
 }
   // Set motor speeds
