@@ -1,5 +1,4 @@
 #include <webots/robot.h>
-#include <iostream>
 #include <webots/light_sensor.h>
 #include <webots/distance_sensor.h>
 #include <webots/motor.h>
@@ -67,10 +66,10 @@ void process_sensors_and_control() {
   printf("\n");
 
   // Detect obstacles
-  bool right_obstacle = ps_values[2] > 100.0;
-  bool left_obstacle = ps_values[5] > 100.0;
-  bool front_obstacle = ps_values[0] > 100.0;
-  bool corner_obstacle=ps_values[6]>100.0;
+  bool right_obstacle = ps_values[2] > 90.0;
+  bool left_obstacle = ps_values[5] > 90.0;
+  bool front_obstacle = ps_values[0] > 90.0;
+  bool corner_obstacle=ps_values[6]>90.0;
 
   // Set initial motor speeds
   double left_speed = MAX_SPEED;
