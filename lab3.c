@@ -171,30 +171,34 @@ int initial_balance = 100;
 void withdraw(int tob[], int transaction[], int size);
 
 int main() {
-    int transaction[SIZE] = {200, -150, -500, -400, -50, -200, 300, 0};  // Correct initialization
-    int tob[SIZE] = {0};  // Array to store invalid transactions, initialized to 0
+    int transaction[SIZE] = {200, -150, -500, -400, -50, -200, 300, 0};  
+    int tob[SIZE] = {0};  
     withdraw(tob, transaction, SIZE);
     return 0;
 }
 
 void withdraw(int tob[], int transaction[], int size) {
-    int j = 0;  // Index for storing invalid transactions
+    printf("Transactions to be processed:\n");
 
-    for (int i = 0; i < size; i++) {  // Iterate over each transaction
+  
+    for (int i = 0; i < size; i++) {
+        printf("Transaction of %d: ", transaction[i]);
+
         if ((initial_balance + transaction[i]) < 0) {
-            printf("Transaction of %d is invalid!\n", transaction[i]);
-            tob[j++] = transaction[i];  // Store the invalid transaction
+            printf("Invalid! Transaction would cause overdraft.\n");
+            tob[i] = transaction[i];  // Store the invalid transaction
         } else {
             initial_balance += transaction[i];
-            printf("Transaction of %d processed. New balance: %d\n", transaction[i], initial_balance);
+            printf("Processed. New balance: %d\n", initial_balance);
         }
     }
-    printf("tobeprocessed is: \n");
-    for(int i;i<j;i++){
-        printf("%d",tob[i]);
-    }
-    printf("\n");
-    // Display the list of invalid transactions
+
    
+    printf("\nInvalid transactions:\n");
+    for (int i = 0; i < size; i++) {
+        if (tob[i] != 0) {
+            printf("Transaction of %d was invalid.\n", tob[i]);
+        }
+    }
 }
 
