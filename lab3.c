@@ -202,4 +202,109 @@ void withdraw(int tob[], int transaction[], int size) {
     }
 }
 
+question3
+#include<stdio.h>
+#define SQUAD_SIZE 30
+#define NUM_TEAMS 7
+void display_menu();
+void enroll_club(player_t r1,char club_name);
+void add_player(player_t r1 ,age_t,int name,int kit_number,int age,char position,int  year,int month,int day);
+void search_update();
+void display_club_statistics();
+void handle_error(); 
+
+typedef struct 
+{
+    char name;
+    int kit_number;
+    char club_name;
+    char position;
+}player_t; 
+player_t r1;
+
+typedef struct{
+        int year;
+        int month;
+        int day;
+    }age_t;
+age_t r1;
+
+
+    
+int main(void){
+    display_menu(); 
+   
+    return 0;
+}
+void display_menu(){
+    int option;
+    printf("1.enroll club 2.add player 3.seaech update 4.display club statistics 5.hanedle error\n");
+    printf("enter your option: ");
+    scanf("%d",&option);
+    switch(option){
+        case 1:
+        void enroll_club(player_t r1,char club_name);
+        break;
+        case 2:
+        void add_player(player_t r1,age_t r1,int name,int kit_number,int age,char position,int year, int month,int day);
+        break;
+        case 3:
+        void search_update();
+        break;
+        case 4:
+        void display_club_statistics();
+        break;
+        case 5:
+        void handle_error(); 
+        break;
+        default:
+        puts("you enter a wrong digit!")
+        continue;
+    }
+}
+void enroll_club(player_t r1,char club_name){
+    char club_name;
+    printf("enter your club name: ");
+    scanf("%7s",&club_name);
+    r1.club_name;
+    printf("the club is %7s\n",club_name);
+    
+}
+void add_player(player_t r1,age_t r1,int name,int kit_number,int age,char position,int year,int month,int day){
+    puts("enrro_club(player_t r1)");
+    char name;
+    printf("enter player's name: ");
+    scanf("%s",&name);
+    r1.name;
+    int kit_number;
+    printf("enter player's kit number: ");
+    scanf("%d",&kit_number);
+    r1.kit_number;
+    printf("enter player's birthday(year month day)> ");
+    int year,month,day;
+    scanf("%d%d%d",&year,&month,&day);
+    r1.year;
+    r1.month;
+    r1.day;
+    char position;
+    printf("enter player's position: ");
+    scanf("%s",&position);
+    r1.position;
+    printf("the player' name:%s kit number:%d birthday:%d/%d/%d the position:%s ",name,kit_number,year,month,day,position);
+    
+
+    
+
+
+}
+void search_update(){
+    
+}
+void display_club_statistics(){
+    
+}
+
+void handle_error(){
+    
+}
 
