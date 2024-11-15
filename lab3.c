@@ -171,7 +171,7 @@ int initial_balance = 100;
 void withdraw(int tob[], int transaction[], int size);
 
 int main() {
-    int transaction[SIZE] = {200, -150, -500, -400, -50, -200, 300, 0};  
+    int transaction[SIZE] = {-5000, 2000, 1000, -400, -50, -200, 300, 0};  
     int tob[SIZE] = {0};  
     withdraw(tob, transaction, SIZE);
     return 0;
@@ -201,4 +201,5 @@ void withdraw(int tob[], int transaction[], int size) {
         }
     }
 }
+
 
