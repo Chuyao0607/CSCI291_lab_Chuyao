@@ -310,6 +310,7 @@ void handle_error(){
 question 3
 #include <stdio.h>
 #include <string.h>
+
 #define SQUAD_SIZE 30
 #define NUM_TEAMS 7
 
@@ -328,119 +329,184 @@ typedef struct {
 typedef struct {
     char team_name[20];
     player_t players[SQUAD_SIZE];
-    int active_size;
+    int player_count;
 } team_t;
 
-void display_menu(team_t tm[], int *num_teams);
-void enroll_club(team_t tm[], int *num_teams);
-void add_player(team_t tm[], int num_teams);
-void search_update(team_t *tm);
-void display_club_statistics(team_t *tm);
-void handle_error();
+team_t tm[NUM_TEAMS];
+int team_count = 0;
+
+void display_menu();
+void enroll_club();
+void add_player();
+void search_update();
+void display_club_statistics();
+void handle_error(const char *message);
 
 int main(void) {
-    team_t tm[NUM_TEAMS] = {0};
-    int num_teams = 0;
-while (1) {
+    while (1) {
+        display_menu();
         int option;
-        printf("1. Enroll club\n2. Add player\n3. Search and update\n4. Display club statistics\n5. Handle error\n");
-        printf("Enter your option: ");
+       
         scanf("%d", &option);
 
         switch (option) {
             case 1:
-                void enroll_club(tm, num_teams);
+                enroll_club();
                 break;
             case 2:
-                void add_player(tm, num_teams);
+                add_player();
                 break;
             case 3:
-                void search_update(team_t *tm);
+                search_update();
                 break;
             case 4:
-                void display_club_statistics(team_t *tm);
+                display_club_statistics();
                 break;
             case 5:
-                void handle_error(); 
+                handle_error("An error occurred.");
                 break;
             default:
                 puts("Invalid input. Program will terminate.");
-                return;
-    display_menu(tm, &num_teams);
-
+                return 0;
+        }
+    }
     return 0;
 }
-}
+
+void display_menu() {
+    printf("1. Enroll club\n");
+    printf("2. Add player\n");
+    printf("3. Search and update attributes\n");
+    printf("4. Display club statistics\n");
+    printf("5. Exit\n");
+    printf("Enter your option: ");
 }
 
-void display_menu(team_t tm[], int *num_teams) {
-    printf("1.erroll club\n");
-    printf("2. add player\n");
-    printf("3. search and update atrributes\n");
-    printf("4. display club statistics\n");
-    printf("exsit\n");
-}
-
-void enroll_club(team_t tm[], int *num_teams) {
-    if (*num_teams >= NUM_TEAMS) {
-        printf("Maximum number of teams reached.\n");
+void enroll_club() {
+    if (team_count >= NUM_TEAMS) {
+        handle_error("Maximum number of clubs reached!");
         return;
     }
-    printf("Enter the club name: ");
-    scanf("%19s", tm[*num_teams].team_name);
-    tm[*num_teams].active_size = 0;
-    printf("Club '%s' enrolled successfully.\n", tm[*num_teams].team_name);
-    (*num_teams)++;
+    printf("Enter club name: ");
+    scanf(" %[^\n]", tm[team_count].team_name);
+    tm[team_count].player_count = 0;
+    team_count++;
+    printf("Club enrolled successfully!\n");
 }
 
-void add_player(team_t tm[], int num_teams) {
-    int index;
-    printf("Select a club (0 to %d): ", num_teams - 1);
-    scanf("%d", &index);
-
-    if (index < 0 || index >= num_teams) {
-        printf("Invalid club selection.\n");
-        return;
-    }
-
-    team_t *current_team = &tm[index];
-    if (current_team->active_size >= SQUAD_SIZE) {
-        printf("This team is already full.\n");
+void add_player() {
+    int option;
+    printf("Enter a team (1-%d): ", team_count);
+    scanf("%d", &option);
+    if (option < 1 || option > team_count) {
+        handle_error("Invalid team number.");
         return;
     }
 
-    player_t *new_player = &current_team->players[current_team->active_size];
+    team_t *selected_team = &tm[option - 1];
+    player_t new_player;
+    printf("Enter your name: ");
+    scanf(" %[^\n]", new_player.name);
+    printf("Enter your kit number: ");
+    scanf("%d", &new_player.kit_number);
+    printf("Enter your birthday (DD/MM/YYYY): ");
+    scanf("%d/%d/%d", &new_player.age.day, &new_player.age.month, &new_player.age.year);
+    
+    printf("Enter your position: ");
+    scanf(" %[^\n]", new_player.position);
 
-    printf("Enter player's name: ");
-    scanf("%24s", new_player->name);
-
-    printf("Enter player's kit number: ");
-    scanf("%d", &new_player->kit_number);
-
-    printf("Enter player's position: ");
-    scanf("%19s", new_player->position);
-
-    printf("Enter player's birthday (year month day): ");
-    scanf("%d %d %d", &new_player->age.year, &new_player->age.month, &new_player->age.day);
-
-    printf("Player '%s' added to club '%s'.\n", new_player->name, current_team->team_name);
-    current_team->active_size++;
+    // Check for duplicates
+    for (int i = 0; i < selected_team->player_count; i++) {
+        if (strcmp(selected_team->players[i].name, new_player.name) == 0 ||
+            selected_team->players[i].kit_number == new_player.kit_number) {
+            handle_error("Duplicate player name or kit number found!");
+            return;
+        }
+    }
+    selected_team->players[selected_team->player_count++] = new_player;
+    printf("Player added successfully!\n");
 }
 
-void search_update(team_t *tm) {
-    printf("Search and update functionality not yet implemented.\n");
+void search_update() {
+    int method;
+    printf("Please choose a method to search (1. Name / 2. Kit number): ");
+    scanf("%d", &method);
+    switch (method) {
+        case 1: {
+            char entered_name[25];
+            printf("Enter name: ");
+            scanf(" %[^\n]", entered_name);
+            int found = 0;
+            for (int i = 0; i < team_count; i++) {
+                for (int j = 0; j < tm[i].player_count; j++) {
+                    if (strcmp(tm[i].players[j].name, entered_name) == 0) {
+                        printf("Player found: %s\n", tm[i].players[j].name);
+                        printf("Enter new club: ");
+                        scanf(" %[^\n]", tm[i].players[j].club_name);
+                        printf("Enter new kit number: ");
+                        scanf("%d", &tm[i].players[j].kit_number);
+                        printf("Enter new position: ");
+                        scanf(" %[^\n]", tm[i].players[j].position);
+                        printf("Enter new birthday (DD/MM/YYYY): ");
+                        scanf("%d/%d/%d", &tm[i].players[j].age.day, &tm[i].players[j].age.month, &tm[i].players[j].age.year);
+                        printf("Player updated successfully!\n");
+                        found = 1;
+                        break;
+                    }
+                }
+                if (found) break;
+            }
+            if (!found) {
+                printf("Player not found.\n");
+            }
+            break;
+        }
+        case 2: {
+            int entered_kit_number;
+            printf("Enter kit number: ");
+            scanf("%d", &entered_kit_number);
+            int found = 0;
+            for (int i = 0; i < team_count; i++) {
+                for (int j = 0; j < tm[i].player_count; j++) {
+                    if (tm[i].players[j].kit_number == entered_kit_number) {
+                        printf("Player found: %s\n", tm[i].players[j].name);
+                        printf("Enter new club: ");
+                        scanf(" %[^\n]", tm[i].players[j].club_name);
+                        printf("Enter new name: ");
+                        scanf(" %[^\n]", tm[i].players[j].name);
+                        printf("Enter new position: ");
+                        scanf(" %[^\n]", tm[i].players[j].position);
+                        printf("Enter new birthday (DD/MM/YYYY): ");
+                        scanf("%d/%d/%d", &tm[i].players[j].age.day, &tm[i].players[j].age.month, &tm[i].players[j].age.year);
+                        printf("Player updated successfully!\n");
+                        found = 1;
+                        break;
+                    }
+                }
+                if (found) break;
+            }
+            if (!found) {
+                printf("Player not found.\n");
+            }
+            break;
+        }
+        default:
+            printf("Invalid option. Try again.\n");
+            break;
+    }
 }
 
-void display_club_statistics(team_t *tm) {
-    printf("Statistics for club '%s':\n", tm->team_name);
-    for (int i = 0; i < tm->active_size; i++) {
-        printf("Name: %s\n", tm->players[i].name);
-        printf("Kit Number: %d\n", tm->players[i].kit_number);
-        printf("Position: %s\n", tm->players[i].position);
-        printf("Birth Date: %d-%02d-%02d\n", tm->players[i].age.year, tm->players[i].age.month, tm->players[i].age.day);
+void display_club_statistics() {
+    for (int i = 0; i < team_count; i++) {
+        printf("Team: %s\n", tm[i].team_name);
+        for (int j = 0; j < tm[i].player_count; j++) {
+            printf("Name: %s, Kit Number: %d, Position: %s, Birthday: %d/%d/%d\n",
+                   tm[i].players[j].name, tm[i].players[j].kit_number, tm[i].players[j].position,
+                   tm[i].players[j].age.day, tm[i].players[j].age.month, tm[i].players[j].age.year);
+        }
     }
 }
 
 void handle_error(const char *message) {
-    printf("error: s\n", message);
+    printf("Error: %s\n", message);
 }
