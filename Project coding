@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 #define TIME_STEP 32 // Time step in milliseconds
-#define MAX_SPEED 0.5 * 6.28
+#define MAX_SPEED  6.28
 
 // Sensor and motor tags
 WbDeviceTag light_sensor, distance_sensor, left_motor, right_motor;
@@ -71,14 +71,14 @@ void process_sensors_and_control() {
   printf("\n");
 
   // Detect obstacles
-  bool front_obstacle = ps_values[0] > 90.0;
-  bool side_left = ps_values[2] > 90.0;   // 左侧
-  bool corner_left = ps_values[1] > 90.0;
-  bool rear_left = ps_values[3] > 90.0;
-  bool back_obstacle = ps_values[4] > 90.0;
-  bool side_right = ps_values[6] > 90.0;  // 右侧
-  bool corner_right = ps_values[7] > 90.0; // 右前角
-  bool rear_right = ps_values[5] > 90.0;   // 右后
+  bool right_front_obstacle = ps_values[0] > 90.0;
+  bool side_right = ps_values[2] > 90.0;   // Left side
+  bool corner_right = ps_values[1] > 90.0;
+  bool rear_right = ps_values[3] > 90.0;
+  bool left_front_obstacle = ps_values[7] > 90.0;
+  bool side_left = ps_values[5] > 90.0;   // Left side
+  bool corner_left = ps_values[6] > 90.0;
+  bool rear_left = ps_values[4] > 90.0;
 
   // Set initial motor speeds
   double left_speed = MAX_SPEED;
@@ -104,16 +104,15 @@ void process_sensors_and_control() {
     // If there's no obstacle in front and left is clear, move forward
     left_speed = 0.5 * MAX_SPEED;
     right_speed = 0.5 * MAX_SPEED;
+  } else if (front_obstacle && side_left && side_right) {
+    // If there's an obstacle in front, left and right, try to move backward
+    left_speed = -0.5 * MAX_SPEED;
+    right_speed = -0.5 * MAX_SPEED;
   } else {
     // Handle other cases such as moving in case of side or rear obstacles
     left_speed = MAX_SPEED;
     right_speed = MAX_SPEED;
-  }else if (front_obstacle && side_left && side_right) {
-    // If there's an obstacle in front, left and right, try to move backward
-    left_speed = -0.5 * MAX_SPEED;
-    right_speed = -0.5 * MAX_SPEED;
-}
-
+  }
 
   // Set motor speeds
   wb_motor_set_velocity(left_motor, left_speed);
