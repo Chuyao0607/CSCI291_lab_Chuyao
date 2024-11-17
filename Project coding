@@ -3,42 +3,31 @@
 #include <webots/distance_sensor.h>
 #include <webots/motor.h>
 #include <stdio.h>
+#include <math.h>
 
-#define TIME_STEP 32 // Time step in milliseconds
-#define MAX_SPEED  6.28
+#define TIME_STEP 32
+#define MAX_SPEED 6.28
+#define TOLERANCE 0.05
 
 // Sensor and motor tags
-WbDeviceTag light_sensor, distance_sensor, left_motor, right_motor;
-WbDeviceTag ps[8];  // Store 8 proximity sensors
+WbDeviceTag left_motor, right_motor;
+WbDeviceTag ps[8];  // 8 个接近传感器
 
-// Flag to track the first movement
 bool first_move = true;
 
-// Initialize sensors and motors
+// 初始化设备
 void initialize_devices() {
-  // Initialize motors first to avoid invalid device tag error
   left_motor = wb_robot_get_device("left wheel motor");
   right_motor = wb_robot_get_device("right wheel motor");
-
-  // Check if motor devices are correctly retrieved
   if (left_motor == NULL || right_motor == NULL) {
-    printf("Error: Motor devices not found.\n");
+    printf("Error: Motors not found!\n");
     return;
   }
 
-  // Set motor positions to infinity for velocity control
   wb_motor_set_position(left_motor, INFINITY);
   wb_motor_set_position(right_motor, INFINITY);
 
-  // Initialize light sensor
-  light_sensor = wb_robot_get_device("lts");
-  wb_light_sensor_enable(light_sensor, TIME_STEP);
-
-  // Initialize distance sensor
-  distance_sensor = wb_robot_get_device("Dts");
-  wb_distance_sensor_enable(distance_sensor, TIME_STEP);
-
-  // Initialize proximity sensors
+  // 初始化接近传感器
   for (int i = 0; i < 8; i++) {
     char sensor_name[4];
     sprintf(sensor_name, "ps%d", i);
@@ -47,9 +36,9 @@ void initialize_devices() {
   }
 }
 
-// Process sensor data and control the motors
+// 处理传感器数据并控制机器人
 void process_sensors_and_control() {
-  // If this is the first move, make the robot go straight
+  // 初次移动，机器人直行
   if (first_move) {
     wb_motor_set_velocity(left_motor, 0.5 * MAX_SPEED);
     wb_motor_set_velocity(right_motor, 0.5 * MAX_SPEED);
@@ -57,64 +46,68 @@ void process_sensors_and_control() {
     return;
   }
 
-  // Read proximity sensors
+  // 获取接近传感器值
   double ps_values[8];
   for (int i = 0; i < 8; i++) {
     ps_values[i] = wb_distance_sensor_get_value(ps[i]);
   }
 
-  // Print sensor values for debugging
-  printf("Sensor values: ");
-  for (int i = 0; i < 8; i++) {
-    printf("%f ", ps_values[i]);
-  }
-  printf("\n");
+  // 定义方向障碍物标志
+  bool right_front_obstacle = ps_values[0] > 80.0;
+  bool corner_right = ps_values[1] > 80.0;
+  bool side_right = ps_values[2] > 80.0;
+  bool rear_right = ps_values[3] > 80.0;
+  bool rear_left = ps_values[4] > 80.0;
+  bool side_left = ps_values[5] > 80.0;
+  bool corner_left = ps_values[6] > 80.0;
+  bool left_front_obstacle = ps_values[7] > 80.0;
 
-  // Detect obstacles
-  bool right_front_obstacle = ps_values[0] > 90.0;
-  bool side_right = ps_values[2] > 90.0;   // Left side
-  bool corner_right = ps_values[1] > 90.0;
-  bool rear_right = ps_values[3] > 90.0;
-  bool left_front_obstacle = ps_values[7] > 90.0;
-  bool side_left = ps_values[5] > 90.0;   // Left side
-  bool corner_left = ps_values[6] > 90.0;
-  bool rear_left = ps_values[4] > 90.0;
+  bool front_obstacle = right_front_obstacle || left_front_obstacle;
 
-  // Set initial motor speeds
   double left_speed = MAX_SPEED;
   double right_speed = MAX_SPEED;
 
-  // Handle obstacle detection and movement
   if (front_obstacle) {
-    // If there's an obstacle in front, check left or right
-    if (!side_left && !side_right) {
-      // If both sides are clear, turn away from the obstacle
-      left_speed = 0.1 * MAX_SPEED;
-      right_speed = MAX_SPEED; // Turn right
-    } else if (side_left) {
-      // If there's an obstacle on the left, turn right
-      left_speed = MAX_SPEED;
-      right_speed = 0.1 * MAX_SPEED;
-    } else if (side_right) {
-      // If there's an obstacle on the right, turn left
-      left_speed = 0.1 * MAX_SPEED;
-      right_speed = MAX_SPEED;
-    }
-  } else if (!front_obstacle && !side_left) {
-    // If there's no obstacle in front and left is clear, move forward
-    left_speed = 0.5 * MAX_SPEED;
-    right_speed = 0.5 * MAX_SPEED;
-  } else if (front_obstacle && side_left && side_right) {
-    // If there's an obstacle in front, left and right, try to move backward
+  if (side_left && side_right) {
+    // 前方和两侧均有障碍物，后退
     left_speed = -0.5 * MAX_SPEED;
     right_speed = -0.5 * MAX_SPEED;
-  } else {
-    // Handle other cases such as moving in case of side or rear obstacles
+  } else if (side_left) {
+    // 前方和左侧有障碍物，右转
     left_speed = MAX_SPEED;
+    right_speed = 0.1 * MAX_SPEED;
+  } else if (side_right) {
+    // 前方和右侧有障碍物，左转
+    left_speed = 0.1 * MAX_SPEED;
+    right_speed = MAX_SPEED;
+  } else {
+    // 前方有障碍物但两侧清空，右转为默认行为
+    left_speed = MAX_SPEED;
+    right_speed = -0.1 * MAX_SPEED;
+  }
+} else if (!front_obstacle) {
+  if (side_left && !side_right) {
+    // 如果左侧清空而右侧有障碍物，优先向左转，遵循左手法则
+    left_speed = 0.1 * MAX_SPEED;
+    right_speed = MAX_SPEED;
+  } else if (!side_left && !side_right) {
+    // 无前方障碍物且左右两侧都清空，直行
+    left_speed = 0.5 * MAX_SPEED;
+    right_speed = 0.5 * MAX_SPEED;
+  } else if (!side_left && side_right) {
+    // 如果右侧清空，左侧有障碍物，优先左转
+    left_speed = 0.1 * MAX_SPEED;
     right_speed = MAX_SPEED;
   }
+} else {
+  // 处理其他情况，例如后方障碍
+  left_speed = MAX_SPEED;
+  right_speed = MAX_SPEED;
+}
 
-  // Set motor speeds
+
+
+  // 设置电机速度
   wb_motor_set_velocity(left_motor, left_speed);
   wb_motor_set_velocity(right_motor, right_speed);
 }
@@ -122,18 +115,10 @@ void process_sensors_and_control() {
 int main() {
   wb_robot_init();
 
-  // Initialize other devices
   initialize_devices();
 
   while (wb_robot_step(TIME_STEP) != -1) {
-    // Process sensors and control the robot
     process_sensors_and_control();
-  }
-
-  wb_robot_cleanup();
-  return 0;
-}
-
   }
 
   wb_robot_cleanup();
