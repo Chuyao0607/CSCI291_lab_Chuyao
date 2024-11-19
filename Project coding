@@ -8,10 +8,12 @@
 #define TIME_STEP 32
 #define MAX_SPEED 6.28
 #define TOLERANCE 0.05
+#define NUM_LIGHT_SENSORS 8  // 光传感器数量
 
 // Sensor and motor tags
 WbDeviceTag left_motor, right_motor;
 WbDeviceTag ps[8];  // 8 个接近传感器
+WbDeviceTag light_sensors[NUM_LIGHT_SENSORS];  // 8 个光传感器
 
 bool first_move = true;
 
@@ -34,6 +36,21 @@ void initialize_devices() {
     ps[i] = wb_robot_get_device(sensor_name);
     wb_distance_sensor_enable(ps[i], TIME_STEP);
   }
+
+  // 初始化光传感器
+for (int i = 0; i < NUM_LIGHT_SENSORS; i++) {
+  char sensor_name[16];
+  sprintf(sensor_name, "light_sensor%d", i);  // 光传感器名称
+  light_sensors[i] = wb_robot_get_device(sensor_name);
+
+  if (light_sensors[i] == NULL) {
+    printf("Error: Light sensor %d not found!\n", i);
+    return;
+  }
+
+  wb_light_sensor_enable(light_sensors[i], TIME_STEP);
+}
+
 }
 
 // 处理传感器数据并控制机器人
@@ -68,44 +85,64 @@ void process_sensors_and_control() {
   double right_speed = MAX_SPEED;
 
   if (front_obstacle) {
-  if (side_left && side_right) {
-    // 前方和两侧均有障碍物，后退
-    left_speed = -0.5 * MAX_SPEED;
-    right_speed = -0.5 * MAX_SPEED;
-  } else if (side_left) {
-    // 前方和左侧有障碍物，右转
-    left_speed = MAX_SPEED;
-    right_speed = 0.1 * MAX_SPEED;
-  } else if (side_right) {
-    // 前方和右侧有障碍物，左转
-    left_speed = 0.1 * MAX_SPEED;
-    right_speed = MAX_SPEED;
+    if (side_left && side_right) {
+      // 前方和两侧均有障碍物，后退
+      left_speed = -0.5 * MAX_SPEED;
+      right_speed = -0.5 * MAX_SPEED;
+    } else if (side_left) {
+      // 前方和左侧有障碍物，右转
+      left_speed = MAX_SPEED;
+      right_speed = 0.1 * MAX_SPEED;
+    } else if (side_right) {
+      // 前方和右侧有障碍物，左转
+      left_speed = 0.1 * MAX_SPEED;
+      right_speed = MAX_SPEED;
+    } else {
+      // 前方有障碍物但两侧清空，右转为默认行为
+      left_speed = MAX_SPEED;
+      right_speed = -0.1 * MAX_SPEED;
+    }
+  } else if (!front_obstacle) {
+    if (side_left && !side_right) {
+      // 如果左侧清空而右侧有障碍物，优先向左转，遵循左手法则
+      left_speed = 0.1 * MAX_SPEED;
+      right_speed = MAX_SPEED;
+    } else if (!side_left && !side_right) {
+      // 无前方障碍物且左右两侧都清空，直行
+      left_speed = 0.5 * MAX_SPEED;
+      right_speed = 0.5 * MAX_SPEED;
+    } else if (!side_left && side_right) {
+      // 如果右侧清空，左侧有障碍物，优先左转
+      left_speed = 0.1 * MAX_SPEED;
+      right_speed = MAX_SPEED;
+    }
   } else {
-    // 前方有障碍物但两侧清空，右转为默认行为
+    // 处理其他情况，例如后方障碍
     left_speed = MAX_SPEED;
-    right_speed = -0.1 * MAX_SPEED;
-  }
-} else if (!front_obstacle) {
-  if (side_left && !side_right) {
-    // 如果左侧清空而右侧有障碍物，优先向左转，遵循左手法则
-    left_speed = 0.1 * MAX_SPEED;
-    right_speed = MAX_SPEED;
-  } else if (!side_left && !side_right) {
-    // 无前方障碍物且左右两侧都清空，直行
-    left_speed = 0.5 * MAX_SPEED;
-    right_speed = 0.5 * MAX_SPEED;
-  } else if (!side_left && side_right) {
-    // 如果右侧清空，左侧有障碍物，优先左转
-    left_speed = 0.1 * MAX_SPEED;
     right_speed = MAX_SPEED;
   }
-} else {
-  // 处理其他情况，例如后方障碍
-  left_speed = MAX_SPEED;
-  right_speed = MAX_SPEED;
-}
 
+  // 计算光值最大值并检查是否停止机器人
+  double total_light_value = 0.0;
+  double max_light_value = 0.0;
+  for (int i = 0; i < NUM_LIGHT_SENSORS; i++) {
+    total_light_value += wb_light_sensor_get_value(light_sensors[i]);
+    double light_value = wb_light_sensor_get_value(light_sensors[i]);
+    if (light_value > max_light_value) {
+      max_light_value = light_value;
+    }
+  }
 
+  // 计算光传感器的平均值
+  double average_light_value = total_light_value / NUM_LIGHT_SENSORS;
+
+  // 如果某个光值大于平均值且大于最大值，则停止机器人
+  if (max_light_value > average_light_value) {
+    wb_motor_set_velocity(left_motor, 0.0);
+    wb_motor_set_velocity(right_motor, 0.0);
+    printf("Robot stopped, max light value: %f\n", max_light_value);
+    return;  // 停止运动
+  }
 
   // 设置电机速度
   wb_motor_set_velocity(left_motor, left_speed);
@@ -124,3 +161,4 @@ int main() {
   wb_robot_cleanup();
   return 0;
 }
+
