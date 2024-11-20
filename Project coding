@@ -70,14 +70,14 @@ void process_sensors_and_control() {
   }
 
   // 定义方向障碍物标志
-  bool right_front_obstacle = ps_values[0] > 150.0;
-  bool corner_right = ps_values[1] > 150.0;
-  bool side_right = ps_values[2] > 150.0;
-  bool rear_right = ps_values[3] > 150.0;
-  bool rear_left = ps_values[4] > 150.0;
-  bool side_left = ps_values[5] > 150.0;
-  bool corner_left = ps_values[6] > 150.0;
-  bool left_front_obstacle = ps_values[7] > 150.0;
+  bool right_front_obstacle = ps_values[0] > 80.0;
+  bool corner_right = ps_values[1] > 80.0;
+  bool side_right = ps_values[2] > 80.0;
+  bool rear_right = ps_values[3] > 80.0;
+  bool rear_left = ps_values[4] > 80.0;
+  bool side_left = ps_values[5] > 80.0;
+  bool corner_left = ps_values[6] > 80.0;
+  bool left_front_obstacle = ps_values[7] > 80.0;
 
   bool front_obstacle = right_front_obstacle || left_front_obstacle;
 
