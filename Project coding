@@ -25,6 +25,8 @@ double pause_start_time = 0.0;
 double max_light_intensity = 0.0;  // Tracks the brightest light intensity
 double current_light_intensity = 0.0;  // Current light sensor value
 
+bool found_brightest_light = false;  // Flag to stop movement once the brightest light is found
+
 // Initialize devices
 void initialize_devices() {
   left_motor = wb_robot_get_device("left wheel motor");
@@ -81,15 +83,21 @@ void process_sensors_and_control() {
   }
 
   // Navigate to the station
-  if (navigation_to_station) {
+  if (navigation_to_station && !found_brightest_light) {
     current_light_intensity = wb_light_sensor_get_value(light_sensor);
 
-    // Check if the robot has reached the station
+    // Track the brightest light intensity during exploration
+    if (current_light_intensity > max_light_intensity) {
+      max_light_intensity = current_light_intensity;
+      printf("New brightest light intensity recorded: %f\n", max_light_intensity);
+    }
+
+    // If the current light intensity is close enough to the brightest value, stop
     if (fabs(current_light_intensity - max_light_intensity) < TOLERANCE) {
       printf("Station reached with light intensity: %f. Stopping.\n", current_light_intensity);
       wb_motor_set_velocity(left_motor, 0.0);
       wb_motor_set_velocity(right_motor, 0.0);
-      navigation_to_station = false;  // Stop navigation
+      found_brightest_light = true;  // Mark that the brightest light has been found
       return;
     }
 
@@ -108,20 +116,10 @@ void process_sensors_and_control() {
     return;
   }
 
-  // Default exploration logic (before navigation starts)
+  // Default exploration logic (before navigation starts or if already paused)
   double ps_values[8];
   for (int i = 0; i < 8; i++) {
     ps_values[i] = wb_distance_sensor_get_value(ps[i]);
-  }
-
-  current_light_intensity = wb_light_sensor_get_value(light_sensor);
-
-  // Track the brightest light intensity during exploration
-  if (!navigation_to_station) {
-    if (current_light_intensity > max_light_intensity) {
-      max_light_intensity = current_light_intensity;
-      printf("New brightest light intensity recorded: %f\n", max_light_intensity);
-    }
   }
 
   // Default movement logic
