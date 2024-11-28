@@ -65,18 +65,18 @@ a.
 #include <iostream>
 #include <iomanip>  // for std::setw, std::fixed, std::setprecision
 using namespace std;
-
-int main() {
-    float number = 123.45678;
-    int fieldspace = 10;
-    int precision = 3;
-
-    cout << setw(fieldspace)
+void print_real( float number, int fieldspace, int precision){
+cout << setw(fieldspace)
               << fixed
               << setprecision(precision)
               << number
               << endl;
     
+}
+int main() {
+    float number = 123.45678;
+    int fieldspace = 10;
+    int precision = 3;
 
     return 0;
 }
