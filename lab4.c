@@ -64,17 +64,18 @@ question3：
 a.
 #include <iostream>
 #include <iomanip>  // for std::setw, std::fixed, std::setprecision
+using namespace std;
 
 int main() {
     float number = 123.45678;
     int fieldspace = 10;
     int precision = 3;
 
-    std::cout << std::setw(fieldspace)
-              << std::fixed
-              << std::setprecision(precision)
+    cout << setw(fieldspace)
+              << fixed
+              << setprecision(precision)
               << number
-              << std::endl;
+              << endl;
     
 
     return 0;
