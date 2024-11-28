@@ -60,3 +60,22 @@ int main() {
     
     return 0;
 }
+question3：
+a.
+#include <iostream>
+#include <iomanip>  // for std::setw, std::fixed, std::setprecision
+
+int main() {
+    float number = 123.45678;
+    int fieldspace = 10;
+    int precision = 3;
+
+    std::cout << std::setw(fieldspace)
+              << std::fixed
+              << std::setprecision(precision)
+              << number
+              << std::endl;
+    
+
+    return 0;
+}
