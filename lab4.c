@@ -77,6 +77,6 @@ int main() {
     float number = 123.45678;
     int fieldspace = 10;
     int precision = 3;
-
+    print_real(number,fieldspace,precision);
     return 0;
 }
