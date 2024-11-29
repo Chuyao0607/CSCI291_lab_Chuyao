@@ -60,6 +60,153 @@ int main() {
     
     return 0;
 }
+question2:
+#include <stdio.h>
+#include <stdlib.h>
+
+
+typedef struct {
+    int width;
+    int height;
+    int maxGrayValue;
+    unsigned char *pixels;
+} Image;
+
+
+int readPGMText(const char *filename, int *width, int *height, int *maxGrayValue, unsigned char **pixels) {
+    FILE *file = fopen(filename, "r");
+    if (!file) {
+        printf("Error opening file: %s\n", filename);
+        return -1;
+    }
+
+
+    char format[3];
+    if (fscanf(file, "%s", format) != 1 || (format[0] != 'P' || format[1] != '2')) {
+        printf("Invalid PGM file format\n");
+        fclose(file);
+        return -1;
+    }
+
+
+    char c;
+    while ((c = fgetc(file)) == '#') {
+        while ((c = fgetc(file)) != '\n' && c != EOF);
+    }
+
+ 
+    fseek(file, -1, SEEK_CUR); 
+    fscanf(file, "%d %d %d", width, height, maxGrayValue);
+
+ 
+    *pixels = (unsigned char *)malloc((*width) * (*height) * sizeof(unsigned char));
+    if (*pixels == NULL) {
+        printf("Memory allocation failed for pixel data.\n");
+        fclose(file);
+        return -1;
+    }
+
+ 
+    for (int i = 0; i < *width * *height; i++) {
+        fscanf(file, "%hhu", &((*pixels)[i]));
+    }
+
+    fclose(file);
+    return 0;
+}
+
+
+int writePGMText(const char *filename, int width, int height, int maxGrayValue, unsigned char *pixels) {
+    FILE *file = fopen(filename, "w");
+    if (!file) {
+        printf("Error opening file: %s\n", filename);
+        return -1;
+    }
+
+    fprintf(file, "P2\n");
+    fprintf(file, "# Created by stego_lsb\n");
+    fprintf(file, "%d %d\n", width, height);
+    fprintf(file, "%d\n", maxGrayValue);
+
+
+    for (int i = 0; i < width * height; i++) {
+        fprintf(file, "%d ", pixels[i]);
+    }
+
+    fclose(file);
+    return 0;
+}
+
+
+int writePGMBinary(const char *filename, int width, int height, int maxGrayValue, unsigned char *pixels) {
+    FILE *file = fopen(filename, "wb");
+    if (!file) {
+        printf("Error opening file: %s\n", filename);
+        return -1;
+    }
+
+    fprintf(file, "P5\n");
+    fprintf(file, "# Created by stego_lsb\n");
+    fprintf(file, "%d %d\n", width, height);
+    fprintf(file, "%d\n", maxGrayValue);
+
+
+    fwrite(pixels, sizeof(unsigned char), width * height, file);
+
+    fclose(file);
+    return 0;
+}
+
+
+void embedLSB(int width, int height, unsigned char *coverPixels, unsigned char *secretPixels, unsigned char *stegoPixels) {
+    for (int i = 0; i < width * height; i++) {
+       
+        stegoPixels[i] = (coverPixels[i] & 0xF0) | (secretPixels[i] >> 4);
+    }
+}
+
+
+void extractLSB(int width, int height, unsigned char *stegoPixels, unsigned char *outputPixels) {
+    for (int i = 0; i < width * height; i++) {
+        
+        outputPixels[i] = (stegoPixels[i] & 0x0F) << 4;
+    }
+}
+
+int main() {
+    int width = 512, height = 512;
+    int maxGrayValue;
+    unsigned char *coverPixels, *secretPixels, *stegoPixels, *outputPixels;
+    stegoPixels = (unsigned char *)malloc(width * height * sizeof(unsigned char));
+    outputPixels = (unsigned char *)malloc(width * height * sizeof(unsigned char));
+    if (readPGMText("baboon.pgm", &width, &height, &maxGrayValue, &coverPixels) != 0) {
+        return -1;
+    }
+
+    if (readPGMText("farm.pgm", &width, &height, &maxGrayValue, &secretPixels) != 0) {
+        return -1;
+    }
+
+    if (!stegoPixels || !outputPixels) {
+        printf("Memory allocation failed for stego or output images.\n");
+        return -1;
+    }
+
+  
+    embedLSB(width, height, coverPixels, secretPixels, stegoPixels);
+    extractLSB(width, height, stegoPixels, outputPixels);
+
+ 
+    writePGMBinary("stego_image_bin.pgm", width, height, maxGrayValue, stegoPixels);
+    writePGMText("extracted_secret.pgm", width, height, maxGrayValue, outputPixels);
+    free(coverPixels);
+    free(secretPixels);
+    free(stegoPixels);
+    free(outputPixels);
+
+    return 0;
+}
+
 question3：
 #include <iostream>
 #include <iomanip>  // for std::setw, std::fixed, std::setprecision
