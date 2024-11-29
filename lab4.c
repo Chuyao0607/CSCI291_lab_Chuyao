@@ -64,37 +64,76 @@ question2:
 #include <stdio.h>
 #include <stdlib.h>
 
-#define WIDTH 512
-#define HEIGHT 512
-
-// Function to read a PGM image in text format.
-int readPGMText(const char *filename, unsigned char *pixels, int width, int height) {
+// Function to read a PGM image in text format and determine its dimensions dynamically.
+int readPGMText(const char *filename, unsigned char **pixels, int *width, int *height) {
     FILE *file = fopen(filename, "r");
     if (!file) {
         printf("Error opening file: %s\n", filename);
         return -1;
     }
 
-    char format[3];
-    if (fscanf(file, "%s", format) != 1 || (format[0] != 'P' || format[1] != '2')) {
-        printf("Invalid PGM file format\n");
+    // Use a char pointer for the format instead of an array
+    char *format = (char *)malloc(3 * sizeof(char));
+    if (!format) {
+        printf("Memory allocation failed for format.\n");
         fclose(file);
         return -1;
     }
 
+    if (fscanf(file, "%2s", format) != 1 || (format[0] != 'P' || format[1] != '2')) {
+        printf("Invalid PGM file format\n");
+        free(format);
+        fclose(file);
+        return -1;
+    }
+
+    // Skip comments
     char c;
     while ((c = fgetc(file)) == '#') {
         while ((c = fgetc(file)) != '\n' && c != EOF);
     }
     fseek(file, -1, SEEK_CUR);
 
-    int maxGrayValue;
-    fscanf(file, "%*d %*d %d", &maxGrayValue);
-
-    for (int i = 0; i < width * height; i++) {
-        fscanf(file, "%hhu", &pixels[i]);
+    // Read image dimensions
+    if (fscanf(file, "%d %d", width, height) != 2) {
+        printf("Failed to read image dimensions\n");
+        free(format);
+        fclose(file);
+        return -1;
     }
 
+    int maxGrayValue;
+    if (fscanf(file, "%d", &maxGrayValue) != 1 || maxGrayValue != 255) {
+        printf("Invalid or unsupported max gray value\n");
+        free(format);
+        fclose(file);
+        return -1;
+    }
+
+    // Allocate memory for pixels
+    *pixels = (unsigned char *)malloc((*width) * (*height) * sizeof(unsigned char));
+    if (!*pixels) {
+        printf("Memory allocation failed for pixels.\n");
+        free(format);
+        fclose(file);
+        return -1;
+    }
+
+    // Read pixel data
+    unsigned char *ptr = *pixels;
+    for (int i = 0; i < (*width) * (*height); i++, ptr++) {
+        int pixelValue;
+        if (fscanf(file, "%d", &pixelValue) != 1) {
+            printf("Error reading pixel data\n");
+            free(*pixels);
+            free(format);
+            fclose(file);
+            return -1;
+        }
+        *ptr = (unsigned char)pixelValue;
+    }
+
+    free(format);
     fclose(file);
     return 0;
 }
@@ -112,8 +151,9 @@ int writePGMText(const char *filename, unsigned char *pixels, int width, int hei
     fprintf(file, "%d %d\n", width, height);
     fprintf(file, "255\n");
 
-    for (int i = 0; i < width * height; i++) {
-        fprintf(file, "%d ", pixels[i]);
+    unsigned char *ptr = pixels;
+    for (int i = 0; i < width * height; i++, ptr++) {
+        fprintf(file, "%d ", *ptr);
         if ((i + 1) % width == 0) fprintf(file, "\n");
     }
 
@@ -142,15 +182,19 @@ int writePGMBinary(const char *filename, unsigned char *pixels, int width, int h
 
 // Function to hide a secret image using the 4-bit LSB steganography algorithm.
 void embedLSB(unsigned char *coverPixels, unsigned char *secretPixels, int width, int height) {
-    for (int i = 0; i < width * height; i++) {
-        coverPixels[i] = (coverPixels[i] & 0xF0) | (secretPixels[i] >> 4);
+    unsigned char *coverPtr = coverPixels;
+    unsigned char *secretPtr = secretPixels;
+    for (int i = 0; i < width * height; i++, coverPtr++, secretPtr++) {
+        *coverPtr = (*coverPtr & 0xF0) | (*secretPtr >> 4);
     }
 }
 
-// Function to extract the secret image using 4-LSB steganography algorithm.
+// Function to extract the secret image using 4-bit LSB steganography algorithm.
 void extractLSB(unsigned char *coverPixels, unsigned char *outputPixels, int width, int height) {
-    for (int i = 0; i < width * height; i++) {
-        outputPixels[i] = (coverPixels[i] & 0x0F) << 4;
+    unsigned char *coverPtr = coverPixels;
+    unsigned char *outputPtr = outputPixels;
+    for (int i = 0; i < width * height; i++, coverPtr++, outputPtr++) {
+        *outputPtr = (*coverPtr & 0x0F) << 4;
     }
 }
 
@@ -161,33 +205,16 @@ int main() {
     char extracted_secret[] = "extracted_secret.pgm";
 
     unsigned char *coverPixels, *secretPixels, *outputPixels;
-    int coverWidth = WIDTH, coverHeight = HEIGHT, secretWidth = WIDTH, secretHeight = HEIGHT;
-
-    // Allocate memory for cover image
-    coverPixels = (unsigned char *)malloc(coverWidth * coverHeight * sizeof(unsigned char));
-    if (!coverPixels) {
-        printf("Memory allocation failed for coverPixels.\n");
-        return -1;
-    }
+    int coverWidth, coverHeight, secretWidth, secretHeight;
 
     // Read the cover image file
-    if (readPGMText(cover_image, coverPixels, coverWidth, coverHeight) != 0) {
-        free(coverPixels);
-        return -1;
-    }
-
-    // Allocate memory for secret image
-    secretPixels = (unsigned char *)malloc(secretWidth * secretHeight * sizeof(unsigned char));
-    if (!secretPixels) {
-        printf("Memory allocation failed for secretPixels.\n");
-        free(coverPixels);
+    if (readPGMText(cover_image, &coverPixels, &coverWidth, &coverHeight) != 0) {
         return -1;
     }
 
     // Read the secret image file
-    if (readPGMText(secret_image, secretPixels, secretWidth, secretHeight) != 0) {
+    if (readPGMText(secret_image, &secretPixels, &secretWidth, &secretHeight) != 0) {
         free(coverPixels);
-        free(secretPixels);
         return -1;
     }
 
